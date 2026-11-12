@@ -11,6 +11,31 @@ uv sync
 uv run turviz
 ```
 
+## Desktop distributions
+
+GitHub Actions can build native packages for Windows, macOS and Linux. The
+workflow runs automatically for version tags such as `v0.1.0`, or manually
+from the **Actions** tab with **Build desktop distributions**.
+
+Each workflow run publishes these downloadable artifacts:
+
+- `turviz-windows`: a ZIP containing `TurViz.exe`;
+- `turviz-macos`: a ZIP containing the macOS application bundle;
+- `turviz-linux`: a `.tar.gz` containing the Linux executable.
+
+To publish a release:
+
+```shell
+git add .
+git commit -m "Add multi-platform desktop build"
+git tag v0.1.0
+git push origin main --tags
+```
+
+The builds must run on their target operating system because PySide6 and Qt
+include platform-specific native libraries. The workflow therefore uses one
+GitHub Actions runner per operating system.
+
 ## Example machines
 
 The `examples/` folder contains ready-to-open machines:
