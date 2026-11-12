@@ -1,0 +1,24 @@
+[project]
+name = "turviz"
+version = "0.1.0"
+description = "Visualisation de traces de machines de Turing"
+readme = "README.md"
+authors = [
+    { name = "Sodium Bismuth", email = "nathan.bizon@viacesi.fr" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pyside6>=6.8.0",
+]
+
+[project.scripts]
+turviz = "turviz:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
