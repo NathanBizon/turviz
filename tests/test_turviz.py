@@ -19,7 +19,7 @@ def test_parse_variable_halt_branch_and_comments() -> None:
 
 
 def test_parse_rejects_unknown_target() -> None:
-    with pytest.raises(ParseError, match="état cible inconnu"):
+    with pytest.raises(ParseError, match="unknown target state"):
         parse_tm("A,1,R,MISSING,HALT")
 
 
@@ -35,7 +35,7 @@ def test_engine_respects_step_limit() -> None:
     machine = parse_tm("A,1,R,A,1,L,A")
     result = run_machine(machine, max_steps=2)
     assert not result.halted
-    assert "limite" in result.reason
+    assert "step limit" in result.reason
     assert len(result.snapshots) == 3
 
 
@@ -52,7 +52,7 @@ def test_engine_detects_repeated_configuration() -> None:
     assert not result.halted
     assert result.cycle_start == 0
     assert result.cycle_length == 2
-    assert "cycle détecté" in result.reason
+    assert "cycle detected" in result.reason
 
 
 def test_trace_metrics_describe_exploration() -> None:
@@ -89,7 +89,7 @@ def test_explicit_initial_state_is_backward_compatible() -> None:
 
 
 def test_rejects_unknown_format_directive() -> None:
-    with pytest.raises(ParseError, match="directive inconnue"):
+    with pytest.raises(ParseError, match="unknown directive"):
         parse_tm("@future yes\nA,HALT,HALT")
 
 

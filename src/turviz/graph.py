@@ -16,7 +16,7 @@ class StateGraphWidget(QWidget):
         self.colors: dict[str, QColor] = {}
         self.active_state: str | None = None
         self.setMinimumHeight(220)
-        self.setToolTip("Graphe des états et de leurs transitions")
+        self.setToolTip("Graph of states and their transitions")
 
     def set_machine(
         self,
@@ -36,7 +36,7 @@ class StateGraphWidget(QWidget):
         painter.fillRect(self.rect(), QColor("#f8fafc"))
         if self.machine is None or not self.machine.rules:
             painter.setPen(QColor("#64748b"))
-            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "Aucun graphe à afficher")
+            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "No graph to display")
             return
 
         node_radius = 30.0

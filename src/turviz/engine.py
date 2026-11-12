@@ -111,7 +111,7 @@ def trace_metrics(snapshots: tuple[TapeSnapshot, ...]) -> TraceMetrics:
 
 def run_machine(machine: TuringMachine, max_steps: int = 1_000) -> ExecutionResult:
     if max_steps < 0:
-        raise ValueError("La limite de pas doit être positive ou nulle")
+        raise ValueError("The step limit must be zero or greater")
     tape: dict[int, int] = {}
     tape_history = _Tape.from_cells(tape)
     tape_fingerprint = 0
@@ -123,11 +123,11 @@ def run_machine(machine: TuringMachine, max_steps: int = 1_000) -> ExecutionResu
     for _ in range(max_steps):
         rule = rules.get(state)
         if rule is None:
-            return ExecutionResult(tuple(snapshots), False, f"état inconnu: {state}")
+            return ExecutionResult(tuple(snapshots), False, f"unknown state: {state}")
         symbol = cast(Symbol, tape.get(head, 0))
         transition = rule.transition_for(symbol)
         if transition is None:
-            return ExecutionResult(tuple(snapshots), True, f"HALT sur {state}, symbole {symbol}")
+            return ExecutionResult(tuple(snapshots), True, f"HALT on {state}, symbol {symbol}")
         if transition.write:
             if not tape.get(head):
                 tape_fingerprint ^= _cell_fingerprint(head)
@@ -148,12 +148,12 @@ def run_machine(machine: TuringMachine, max_steps: int = 1_000) -> ExecutionResu
             return ExecutionResult(
                 tuple(snapshots),
                 False,
-                f"cycle détecté : étapes {cycle_start} à {len(snapshots) - 1}",
+                f"cycle detected: steps {cycle_start} to {len(snapshots) - 1}",
                 cycle_start,
                 cycle_length,
             )
         seen[configuration] = len(snapshots) - 1
-    return ExecutionResult(tuple(snapshots), False, f"limite de {max_steps} pas atteinte")
+    return ExecutionResult(tuple(snapshots), False, f"step limit of {max_steps} reached")
 
 
 def _cell_fingerprint(position: int) -> int:

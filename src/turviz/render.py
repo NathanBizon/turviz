@@ -26,7 +26,7 @@ def render_trace(
     max_columns: int = 200,
 ) -> QImage:
     if max_rows < 1 or max_columns < 1:
-        raise ValueError("Les dimensions maximales doivent être positives")
+        raise ValueError("Maximum dimensions must be positive")
     if not snapshots:
         snapshots = (TapeSnapshot({}, 0, ""),)
     snapshots = snapshots[-max_rows:]

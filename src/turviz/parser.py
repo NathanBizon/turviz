@@ -13,10 +13,10 @@ class ParseError(ValueError):
     column: int | None = None
 
     def __str__(self) -> str:
-        location = f"ligne {self.line}"
+        location = f"line {self.line}"
         if self.column is not None:
-            location += f", colonne {self.column}"
-        return f"{location} : {self.message}"
+            location += f", column {self.column}"
+        return f"{location}: {self.message}"
 
 
 def _transition(fields: list[str], line: int, branch: str) -> Transition | None:
@@ -24,16 +24,16 @@ def _transition(fields: list[str], line: int, branch: str) -> Transition | None:
         raise ParseError(line, f"branche {branch} absente")
     if fields[0].upper() == "HALT":
         if len(fields) != 1:
-            raise ParseError(line, f"une branche {branch} HALT ne doit contenir aucun champ supplémentaire")
+            raise ParseError(line, f"a HALT {branch} branch must not contain extra fields")
         return None
     if len(fields) != 3:
-        raise ParseError(line, f"la branche {branch} doit contenir écriture, déplacement et nouvel état")
+        raise ParseError(line, f"branch {branch} must contain write, move and next state")
     if fields[0] not in {"0", "1"}:
-        raise ParseError(line, f"écriture invalide dans la branche {branch}: {fields[0]!r}")
+        raise ParseError(line, f"invalid write value in branch {branch}: {fields[0]!r}")
     if fields[1].upper() not in {"L", "R"}:
-        raise ParseError(line, f"déplacement invalide dans la branche {branch}: {fields[1]!r}")
+        raise ParseError(line, f"invalid move in branch {branch}: {fields[1]!r}")
     if not fields[2]:
-        raise ParseError(line, f"nouvel état vide dans la branche {branch}")
+        raise ParseError(line, f"empty next state in branch {branch}")
     return Transition(
         cast(Symbol, int(fields[0])),
         cast(Direction, fields[1].upper()),
@@ -55,26 +55,26 @@ def parse_tm(text: str) -> TuringMachine:
             argument = directive[1].strip() if len(directive) == 2 else ""
             if name == "@version":
                 if argument != "1":
-                    raise ParseError(line_number, "version de format non supportée, utilisez @version 1")
+                    raise ParseError(line_number, "unsupported format version; use @version 1")
             elif name == "@initial":
                 if not argument:
-                    raise ParseError(line_number, "la directive @initial nécessite un nom d'état")
+                    raise ParseError(line_number, "@initial requires a state name")
                 if declared_initial is not None:
-                    raise ParseError(line_number, "la directive @initial ne peut apparaître qu'une fois")
+                    raise ParseError(line_number, "@initial may only appear once")
                 declared_initial = argument
             else:
-                raise ParseError(line_number, f"directive inconnue: {name}")
+                raise ParseError(line_number, f"unknown directive: {name}")
             continue
         fields = [field.strip() for field in content.split(",")]
         if len(fields) < 2:
-            raise ParseError(line_number, "une ligne doit contenir un état et au moins une branche")
+            raise ParseError(line_number, "a line must contain a state and at least one branch")
         state = fields[0]
         if not state:
-            raise ParseError(line_number, "nom d'état vide")
+            raise ParseError(line_number, "empty state name")
         if state.upper() == "HALT":
-            raise ParseError(line_number, "HALT est réservé aux branches, pas aux états")
+            raise ParseError(line_number, "HALT is reserved for branches, not states")
         if state in seen:
-            raise ParseError(line_number, f"état dupliqué: {state}")
+            raise ParseError(line_number, f"duplicate state: {state}")
         seen.add(state)
         remaining = fields[1:]
         zero_fields = remaining[:1] if remaining and remaining[0].upper() == "HALT" else remaining[:3]
@@ -84,15 +84,15 @@ def parse_tm(text: str) -> TuringMachine:
         rules.append(StateRule(state, zero, one))
 
     if not rules:
-        raise ParseError(1, "le fichier ne contient aucune règle")
+        raise ParseError(1, "the file contains no rules")
     initial_state = declared_initial or rules[0].name
     if initial_state not in seen:
-        raise ParseError(1, f"état initial inconnu: {initial_state}")
+        raise ParseError(1, f"unknown initial state: {initial_state}")
     machine = TuringMachine(tuple(rules), initial_state)
     for rule in rules:
         for transition in (rule.on_zero, rule.on_one):
             if transition and machine.rule_for(transition.next_state) is None:
-                raise ParseError(1, f"état cible inconnu: {transition.next_state}")
+                raise ParseError(1, f"unknown target state: {transition.next_state}")
     return machine
 
 
